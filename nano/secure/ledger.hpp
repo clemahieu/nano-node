@@ -21,6 +21,7 @@ class write_transaction;
 namespace nano
 {
 class block;
+class block_delta;
 enum class block_status;
 enum class epoch : uint8_t;
 class ledger_constants;
@@ -89,6 +90,7 @@ public:
 
 private:
 	void initialize (nano::generate_cache_flags const &);
+	void track (store::write_transaction const & transaction, nano::block_delta const & delta);
 	void confirm (nano::store::write_transaction const & transaction, nano::block const & block);
 
 	std::unique_ptr<ledger_set_any> any_impl;

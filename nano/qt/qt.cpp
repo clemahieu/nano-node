@@ -5,6 +5,7 @@
 #include <nano/qt/qt.hpp>
 #include <nano/secure/ledger.hpp>
 
+#include <boost/format.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 

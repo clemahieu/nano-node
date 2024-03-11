@@ -1156,7 +1156,7 @@ void nano::json_handler::block_info ()
 		{
 			auto account = block->account ();
 			response_l.put ("block_account", account.to_account ());
-			auto amount = node.ledger.amount (transaction, hash);
+			auto amount = node.ledger.any.amount (transaction, hash);
 			if (amount)
 			{
 				response_l.put ("amount", amount.value ().convert_to<std::string> ());
@@ -1220,7 +1220,7 @@ void nano::json_handler::block_confirm ()
 				node.active.recently_cemented.put (status);
 				// Trigger callback for confirmed block
 				auto account = block_l->account ();
-				auto amount = node.ledger.amount (transaction, hash);
+				auto amount = node.ledger.any.amount (transaction, hash);
 				bool is_state_send (false);
 				bool is_state_epoch (false);
 				if (amount)
@@ -1313,7 +1313,7 @@ void nano::json_handler::blocks_info ()
 					boost::property_tree::ptree entry;
 					auto account = block->account ();
 					entry.put ("block_account", account.to_account ());
-					auto amount = node.ledger.amount (transaction, hash);
+					auto amount = node.ledger.any.amount (transaction, hash);
 					if (amount)
 					{
 						entry.put ("amount", amount.value ().convert_to<std::string> ());
@@ -2420,7 +2420,7 @@ public:
 		tree.put ("type", "send");
 		auto account (block_a.hashables.destination.to_account ());
 		tree.put ("account", account);
-		auto amount = handler.node.ledger.amount (transaction, hash);
+		auto amount = handler.node.ledger.any.amount (transaction, hash);
 		if (amount)
 		{
 			tree.put ("amount", amount.value ().convert_to<std::string> ());
@@ -2435,7 +2435,7 @@ public:
 	void receive_block (nano::receive_block const & block_a)
 	{
 		tree.put ("type", "receive");
-		auto amount = handler.node.ledger.amount (transaction, hash);
+		auto amount = handler.node.ledger.any.amount (transaction, hash);
 		if (amount)
 		{
 			auto source_account = handler.node.ledger.any.account (transaction, block_a.hashables.source);
@@ -2468,7 +2468,7 @@ public:
 		if (block_a.hashables.source != handler.node.ledger.constants.genesis->account ())
 		{
 			bool error_or_pruned (false);
-			auto amount = handler.node.ledger.amount (transaction, hash);
+			auto amount = handler.node.ledger.any.amount (transaction, hash);
 			if (amount)
 			{
 				auto source_account = handler.node.ledger.any.account (transaction, block_a.hashables.source);

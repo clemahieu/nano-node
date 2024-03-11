@@ -38,7 +38,6 @@ public:
 	ledger (nano::store::component &, nano::stats &, nano::ledger_constants & constants, nano::generate_cache_flags const & = nano::generate_cache_flags{}, nano::uint128_t min_rep_weight_a = 0);
 	~ledger ();
 
-	std::optional<nano::uint128_t> amount (store::transaction const &, nano::block_hash const &);
 	nano::uint128_t account_balance (store::transaction const &, nano::account const &, bool = false);
 	nano::uint128_t account_receivable (store::transaction const &, nano::account const &, bool = false);
 	/**

@@ -408,7 +408,7 @@ uint64_t nano::json_handler::difficulty_ledger (nano::block const & block_a)
 	// Send check
 	if (block_previous != nullptr)
 	{
-		details.is_send = node.ledger.balance (transaction, previous) > block_a.balance_field ().value ().number ();
+		details.is_send = node.ledger.any.balance (transaction, previous) > block_a.balance_field ().value ().number ();
 		details_found = true;
 	}
 	// Epoch check
@@ -648,7 +648,7 @@ void nano::json_handler::account_info ()
 			{
 				if (info.block_count != confirmation_height_info.height)
 				{
-					confirmed_balance_l = node.ledger.balance (transaction, confirmation_height_info.frontier).value_or (0);
+					confirmed_balance_l = node.ledger.any.balance (transaction, confirmation_height_info.frontier).value_or (0);
 				}
 				else
 				{
@@ -1653,7 +1653,7 @@ void nano::json_handler::block_create ()
 			else if (previous_text.is_initialized () && balance_text.is_initialized () && type == "send")
 			{
 				auto transaction = node.store.tx_begin_read ();
-				if (node.ledger.any.exists (transaction, previous) && node.ledger.balance (transaction, previous) != balance.number ())
+				if (node.ledger.any.exists (transaction, previous) && node.ledger.any.balance (transaction, previous) != balance.number ())
 				{
 					ec = nano::error_rpc::block_create_balance_mismatch;
 				}
@@ -2505,7 +2505,7 @@ public:
 			tree.put ("previous", block_a.hashables.previous.to_string ());
 		}
 		auto balance (block_a.hashables.balance.number ());
-		auto previous_balance = handler.node.ledger.balance (transaction, block_a.hashables.previous);
+		auto previous_balance = handler.node.ledger.any.balance (transaction, block_a.hashables.previous);
 		if (!previous_balance)
 		{
 			if (raw)

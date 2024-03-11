@@ -1532,7 +1532,7 @@ void nano::json_handler::block_create ()
 			{
 				existing->second->store.fetch (transaction, account, prv);
 				previous = node.ledger.any.head (block_transaction, account);
-				balance = node.ledger.account_balance (block_transaction, account);
+				balance = node.ledger.any.balance (block_transaction, account).value_or (0);
 			}
 		}
 		else
@@ -1647,7 +1647,7 @@ void nano::json_handler::block_create ()
 			{
 				auto transaction (node.store.tx_begin_read ());
 				previous = node.ledger.any.head (transaction, pub);
-				balance = node.ledger.account_balance (transaction, pub);
+				balance = node.ledger.any.balance (transaction, pub).value_or (0);
 			}
 			// Double check current balance if previous block is specified
 			else if (previous_text.is_initialized () && balance_text.is_initialized () && type == "send")
@@ -3223,7 +3223,7 @@ void nano::json_handler::process ()
 				}
 				else
 				{
-					auto balance (rpc_l->node.ledger.account_balance (transaction, block_state->hashables.account));
+					auto balance (rpc_l->node.ledger.any.balance (transaction, block_state->hashables.account));
 					if (subtype_text == "send")
 					{
 						if (balance <= block_state->hashables.balance.number ())
@@ -4467,7 +4467,7 @@ void nano::json_handler::wallet_balances ()
 		for (auto i (wallet->store.begin (transaction)), n (wallet->store.end ()); i != n; ++i)
 		{
 			nano::account const & account (i->first);
-			nano::uint128_t balance = node.ledger.account_balance (block_transaction, account);
+			nano::uint128_t balance = node.ledger.any.balance (block_transaction, account).value_or (0);
 			if (balance >= threshold.number ())
 			{
 				boost::property_tree::ptree entry;

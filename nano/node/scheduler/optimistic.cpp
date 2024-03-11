@@ -153,7 +153,7 @@ void nano::scheduler::optimistic::run ()
 
 void nano::scheduler::optimistic::run_one (store::transaction const & transaction, entry const & candidate)
 {
-	auto block = ledger.head_block (transaction, candidate.account);
+	auto block = ledger.any.get (transaction, ledger.any.head (transaction, candidate.account));
 	if (block)
 	{
 		// Ensure block is not already confirmed

@@ -57,7 +57,6 @@ public:
 	/* Returns the exact vote weight for the given representative by doing a database lookup */
 	nano::uint128_t weight_exact (store::transaction const &, nano::account const &) const;
 	std::shared_ptr<nano::block> forked_block (store::transaction const &, nano::block const &);
-	std::shared_ptr<nano::block> head_block (store::transaction const &, nano::account const &);
 	nano::root latest_root (store::transaction const &, nano::account const &);
 	nano::block_hash representative (store::transaction const &, nano::block_hash const &);
 	nano::block_hash representative_calculated (store::transaction const &, nano::block_hash const &);

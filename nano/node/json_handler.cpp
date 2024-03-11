@@ -1298,7 +1298,7 @@ void nano::json_handler::blocks_info ()
 
 	boost::property_tree::ptree blocks;
 	boost::property_tree::ptree blocks_not_found;
-	auto transaction (node.store.tx_begin_read ());
+	auto transaction = node.store.tx_begin_read ();
 	for (boost::property_tree::ptree::value_type & hashes : request.get_child ("hashes"))
 	{
 		if (!ec)
@@ -1386,7 +1386,7 @@ void nano::json_handler::blocks_info ()
 					}
 					if (source)
 					{
-						if (!block->is_receive () || !node.ledger.block_exists (transaction, block->source ()))
+						if (!block->is_receive () || !node.ledger.any.exists (transaction, block->source ()))
 						{
 							entry.put ("source_account", "0");
 						}
@@ -1652,8 +1652,8 @@ void nano::json_handler::block_create ()
 			// Double check current balance if previous block is specified
 			else if (previous_text.is_initialized () && balance_text.is_initialized () && type == "send")
 			{
-				auto transaction (node.store.tx_begin_read ());
-				if (node.ledger.block_exists (transaction, previous) && node.ledger.balance (transaction, previous) != balance.number ())
+				auto transaction = node.store.tx_begin_read ();
+				if (node.ledger.any.exists (transaction, previous) && node.ledger.balance (transaction, previous) != balance.number ())
 				{
 					ec = nano::error_rpc::block_create_balance_mismatch;
 				}
@@ -2620,14 +2620,14 @@ void nano::json_handler::account_history ()
 	nano::block_hash hash;
 	bool reverse (request.get_optional<bool> ("reverse") == true);
 	auto head_str (request.get_optional<std::string> ("head"));
-	auto transaction (node.store.tx_begin_read ());
+	auto transaction = node.store.tx_begin_read ();
 	auto count (count_impl ());
 	auto offset (offset_optional_impl (0));
 	if (head_str)
 	{
 		if (!hash.decode_hex (*head_str))
 		{
-			if (node.ledger.block_exists (transaction, hash))
+			if (node.ledger.any.exists (transaction, hash))
 			{
 				account = node.ledger.account (transaction, hash).value ();
 			}
@@ -3216,8 +3216,8 @@ void nano::json_handler::process ()
 			if (!subtype_text.empty ())
 			{
 				std::shared_ptr<nano::state_block> block_state (std::static_pointer_cast<nano::state_block> (block));
-				auto transaction (rpc_l->node.store.tx_begin_read ());
-				if (!block_state->hashables.previous.is_zero () && !rpc_l->node.ledger.block_exists (transaction, block_state->hashables.previous))
+				auto transaction = rpc_l->node.store.tx_begin_read ();
+				if (!block_state->hashables.previous.is_zero () && !rpc_l->node.ledger.any.exists (transaction, block_state->hashables.previous))
 				{
 					rpc_l->ec = nano::error_process::gap_previous;
 				}
@@ -5089,8 +5089,8 @@ void nano::json_handler::work_generate ()
 				if (!account_opt.is_initialized ())
 				{
 					// Fetch account from block if not given
-					auto transaction_l (node.store.tx_begin_read ());
-					if (node.ledger.block_exists (transaction_l, hash))
+					auto transaction_l = node.store.tx_begin_read ();
+					if (node.ledger.any.exists (transaction_l, hash))
 					{
 						account = node.ledger.account (transaction_l, hash).value ();
 					}

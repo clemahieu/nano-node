@@ -268,7 +268,7 @@ nano::account_info nano::json_handler::account_info_impl (store::transaction con
 	nano::account_info result;
 	if (!ec)
 	{
-		auto info = node.ledger.account_info (transaction_a, account_a);
+		auto info = node.ledger.any.get (transaction_a, account_a);
 		if (!info)
 		{
 			ec = nano::error_common::account_not_found;
@@ -3427,7 +3427,7 @@ void nano::json_handler::receive ()
 		wallet_account_impl (wallet_transaction, wallet, account);
 		if (!ec)
 		{
-			auto block_transaction (node.store.tx_begin_read ());
+			auto block_transaction = node.store.tx_begin_read ();
 			if (node.ledger.block_or_pruned_exists (block_transaction, hash))
 			{
 				auto pending_info = node.ledger.pending_info (block_transaction, nano::pending_key (account, hash));
@@ -3438,7 +3438,7 @@ void nano::json_handler::receive ()
 					{
 						nano::root head;
 						nano::epoch epoch = pending_info->epoch;
-						auto info = node.ledger.account_info (block_transaction, account);
+						auto info = node.ledger.any.get (block_transaction, account);
 						if (info)
 						{
 							head = info->head;
@@ -4407,13 +4407,12 @@ void nano::json_handler::wallet_info ()
 		uint64_t deterministic_count (0);
 		uint64_t adhoc_count (0);
 		auto transaction (node.wallets.tx_begin_read ());
-		auto block_transaction (node.store.tx_begin_read ());
-
+		auto block_transaction = node.store.tx_begin_read ();
 		for (auto i (wallet->store.begin (transaction)), n (wallet->store.end ()); i != n; ++i)
 		{
 			nano::account const & account (i->first);
 
-			auto account_info = node.ledger.account_info (block_transaction, account);
+			auto account_info = node.ledger.any.get (block_transaction, account);
 			if (account_info)
 			{
 				block_count += account_info->block_count;
@@ -4646,11 +4645,11 @@ void nano::json_handler::wallet_history ()
 	{
 		std::multimap<uint64_t, boost::property_tree::ptree, std::greater<uint64_t>> entries;
 		auto transaction (node.wallets.tx_begin_read ());
-		auto block_transaction (node.store.tx_begin_read ());
+		auto block_transaction = node.store.tx_begin_read ();
 		for (auto i (wallet->store.begin (transaction)), n (wallet->store.end ()); i != n; ++i)
 		{
 			nano::account const & account (i->first);
-			auto info = node.ledger.account_info (block_transaction, account);
+			auto info = node.ledger.any.get (block_transaction, account);
 			if (info)
 			{
 				auto timestamp (info->modified);
@@ -4720,11 +4719,11 @@ void nano::json_handler::wallet_ledger ()
 	{
 		boost::property_tree::ptree accounts;
 		auto transaction (node.wallets.tx_begin_read ());
-		auto block_transaction (node.store.tx_begin_read ());
+		auto block_transaction = node.store.tx_begin_read ();
 		for (auto i (wallet->store.begin (transaction)), n (wallet->store.end ()); i != n; ++i)
 		{
 			nano::account const & account (i->first);
-			auto info = node.ledger.account_info (block_transaction, account);
+			auto info = node.ledger.any.get (block_transaction, account);
 			if (info)
 			{
 				if (info->modified >= modified_since)
@@ -4886,11 +4885,11 @@ void nano::json_handler::wallet_representative_set ()
 				std::vector<nano::account> accounts;
 				{
 					auto transaction (rpc_l->node.wallets.tx_begin_read ());
-					auto block_transaction (rpc_l->node.store.tx_begin_read ());
+					auto block_transaction = rpc_l->node.store.tx_begin_read ();
 					for (auto i (wallet->store.begin (transaction)), n (wallet->store.end ()); i != n; ++i)
 					{
 						nano::account const & account (i->first);
-						auto info = rpc_l->node.ledger.account_info (block_transaction, account);
+						auto info = rpc_l->node.ledger.any.get (block_transaction, account);
 						if (info)
 						{
 							if (info->representative != representative)

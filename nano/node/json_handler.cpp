@@ -1959,7 +1959,7 @@ void nano::json_handler::chain (bool successors)
 					entry.put ("", hash.to_string ());
 					blocks.push_back (std::make_pair ("", entry));
 				}
-				hash = successors ? node.ledger.successor (transaction, hash).value_or (0) : block_l->previous ();
+				hash = successors ? node.ledger.any.successor (transaction, hash).value_or (0) : block_l->previous ();
 			}
 			else
 			{
@@ -2692,7 +2692,7 @@ void nano::json_handler::account_history ()
 					--count;
 				}
 			}
-			hash = reverse ? node.ledger.successor (transaction, hash).value_or (0) : block->previous ();
+			hash = reverse ? node.ledger.any.successor (transaction, hash).value_or (0) : block->previous ();
 			block = node.ledger.any.get (transaction, hash);
 		}
 		response_l.add_child ("history", history);
@@ -3724,7 +3724,7 @@ void nano::json_handler::republish ()
 						}
 					}
 				}
-				hash = node.ledger.successor (transaction, hash).value_or (0);
+				hash = node.ledger.any.successor (transaction, hash).value_or (0);
 			}
 			node.network.flood_block_many (std::move (republish_bundle), nullptr, 25);
 			response_l.put ("success", ""); // obsolete

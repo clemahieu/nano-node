@@ -248,7 +248,7 @@ std::pair<std::vector<std::shared_ptr<nano::block>>, std::vector<std::shared_ptr
 			if (block == nullptr && !root.is_zero ())
 			{
 				// Search for block root
-				auto successor = ledger.successor (transaction, root.as_block_hash ());
+				auto successor = ledger.any.successor (transaction, root.as_block_hash ());
 				if (successor)
 				{
 					auto successor_block = ledger.any.get (transaction, successor.value ());

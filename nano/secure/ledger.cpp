@@ -1164,38 +1164,13 @@ void nano::ledger::update_account (store::write_transaction const & transaction_
 	}
 }
 
-std::optional<nano::block_hash> nano::ledger::successor (store::transaction const & transaction_a, nano::qualified_root const & root_a) const noexcept
-{
-	if (!root_a.previous ().is_zero ())
-	{
-		return store.block.successor (transaction_a, root_a.previous ());
-	}
-	else
-	{
-		auto info = any.get (transaction_a, root_a.root ().as_account ());
-		if (info)
-		{
-			return info.value ().open_block;
-		}
-		else
-		{
-			return std::nullopt;
-		}
-	}
-}
-
-std::optional<nano::block_hash> nano::ledger::successor (store::transaction const & transaction, nano::block_hash const & hash) const noexcept
-{
-	return successor (transaction, { hash, hash });
-}
-
 std::shared_ptr<nano::block> nano::ledger::forked_block (store::transaction const & transaction_a, nano::block const & block_a)
 {
 	debug_assert (!any.exists (transaction_a, block_a.hash ()));
 	auto root (block_a.root ());
 	debug_assert (any.exists (transaction_a, root.as_block_hash ()) || store.account.exists (transaction_a, root.as_account ()));
 	std::shared_ptr<nano::block> result;
-	auto successor_l = successor (transaction_a, root.as_block_hash ());
+	auto successor_l = any.successor (transaction_a, root.as_block_hash ());
 	if (successor_l)
 	{
 		result = any.get (transaction_a, successor_l.value ());

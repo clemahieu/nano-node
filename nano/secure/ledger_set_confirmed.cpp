@@ -11,6 +11,33 @@ nano::ledger_set_confirmed::ledger_set_confirmed (nano::ledger const & ledger) :
 {
 }
 
+auto nano::ledger_set_confirmed::account_begin (store::transaction const & transaction) const -> account_iterator
+{
+	return account_upper_bound (transaction, 0);
+}
+
+auto nano::ledger_set_confirmed::account_end () const -> account_iterator
+{
+	return account_iterator{};
+}
+
+// Returns the next receivable entry equal or greater than 'key'
+auto nano::ledger_set_confirmed::account_lower_bound (store::transaction const & transaction, nano::account const & account) const -> account_iterator
+{
+	auto existing = ledger.store.account.begin (transaction, account);
+	if (existing == ledger.store.account.end ())
+	{
+		return account_iterator{ transaction, *this, std::nullopt };
+	}
+	return account_iterator{ transaction, *this, *existing };
+}
+
+// Returns the next receivable entry for an account greater than 'account'
+auto nano::ledger_set_confirmed::account_upper_bound (store::transaction const & transaction, nano::account const & account) const -> account_iterator
+{
+	return account_lower_bound (transaction, account.number () + 1);
+}
+
 std::optional<nano::uint128_t> nano::ledger_set_confirmed::balance (store::transaction const & transaction, nano::account const & account_a) const
 {
 	auto block = get (transaction, head (transaction, account_a));
@@ -38,82 +65,37 @@ std::optional<nano::uint128_t> nano::ledger_set_confirmed::balance (store::trans
 
 bool nano::ledger_set_confirmed::exists (store::transaction const & transaction, nano::block_hash const & hash) const
 {
-	auto block = ledger.store.block.get (transaction, hash);
-	if (!block)
-	{
-		return false;
-	}
-	auto info = ledger.store.confirmation_height.get (transaction, block->account ());
-	if (!info)
-	{
-		return false;
-	}
-	return block->sideband ().height <= info.value ().height;
+	return ledger.store.block.exists (transaction, hash);
 }
 
 bool nano::ledger_set_confirmed::exists_or_pruned (store::transaction const & transaction, nano::block_hash const & hash) const
 {
-	if (ledger.store.pruned.exists (transaction, hash))
-	{
-		return true;
-	}
-	auto block = ledger.store.block.get (transaction, hash);
-	if (!block)
-	{
-		return false;
-	}
-	auto info = ledger.store.confirmation_height.get (transaction, block->account ());
-	if (!info)
-	{
-		return false;
-	}
-	return block->sideband ().height <= info.value ().height;
+	return ledger.store.pruned.exists (transaction, hash) || exists (transaction, hash);
 }
 
 std::optional<nano::account_info> nano::ledger_set_confirmed::get (store::transaction const & transaction, nano::account const & account) const
 {
-	auto info = ledger.store.confirmation_height.get (transaction, account);
-	if (!info)
-	{
-		return std::nullopt;
-	}
-	debug_assert (false);
 	return ledger.store.account.get (transaction, account);
 }
 
 std::shared_ptr<nano::block> nano::ledger_set_confirmed::get (store::transaction const & transaction, nano::block_hash const & hash) const
 {
-	auto block = ledger.store.block.get (transaction, hash);
-	if (!block)
-	{
-		return nullptr;
-	}
-	auto info = ledger.store.confirmation_height.get (transaction, block->account ());
-	if (!info)
-	{
-		return nullptr;
-	}
-	return block->sideband ().height <= info.value ().height ? block : nullptr;
+	return ledger.store.block.get (transaction, hash);
 }
 
 std::optional<nano::pending_info> nano::ledger_set_confirmed::get (store::transaction const & transaction, nano::pending_key const & key) const
 {
-	auto result = ledger.store.pending.get (transaction, key);
-	if (!result && !exists_or_pruned (transaction, key.hash))
-	{
-		return std::nullopt;
-	}
-	return result;
+	return ledger.store.pending.get (transaction, key);
 }
 
 nano::block_hash nano::ledger_set_confirmed::head (store::transaction const & transaction, nano::account const & account) const
 {
-	auto info = ledger.store.confirmation_height.get (transaction, account);
+	auto info = get (transaction, account);
 	if (!info)
 	{
 		return 0;
 	}
-	return info.value ().frontier;
+	return info.value ().head;
 }
 
 uint64_t nano::ledger_set_confirmed::height (store::transaction const & transaction, nano::account const & account) const

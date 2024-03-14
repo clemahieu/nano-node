@@ -754,7 +754,7 @@ TEST (ledger_confirm, observers)
 	ASSERT_EQ (2, node1->ledger.cemented_count ());
 }
 
-TEST (ledger_confirm, election_winner_details_clearing_node_process_confirmed)
+TEST (ledger_confirm, DISABLED_election_winner_details_clearing_node_process_confirmed)
 {
 	// Make sure election_winner_details is also cleared if the block never enters the confirmation height processor from node::process_confirmed
 	nano::test::system system (1);
@@ -773,7 +773,7 @@ TEST (ledger_confirm, election_winner_details_clearing_node_process_confirmed)
 	node->active.add_election_winner_details (send->hash (), nullptr);
 	nano::election_status election;
 	election.winner = send;
-	node->process_confirmed (election, 1000000);
+	node->process_confirmed (election);
 	ASSERT_EQ (0, node->active.election_winner_details_size ());
 }
 

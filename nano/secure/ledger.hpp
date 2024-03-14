@@ -11,6 +11,13 @@
 #include <map>
 #include <memory>
 
+namespace nano
+{
+class block_check_context;
+class confirmed_set;
+class stats;
+}
+
 namespace nano::store
 {
 class component;
@@ -20,6 +27,7 @@ class write_transaction;
 
 namespace nano
 {
+class backlog_population;
 class block;
 class block_delta;
 enum class block_status;
@@ -34,6 +42,9 @@ class stats;
 
 class ledger final
 {
+	friend class backlog_population;
+	friend class block_check_context;
+	friend class ledger_set_any;
 	template <typename T>
 	friend class receivable_iterator;
 
@@ -92,7 +103,8 @@ public:
 private:
 	void initialize (nano::generate_cache_flags const &);
 	void track (store::write_transaction const & transaction, nano::block_delta const & delta);
-	void confirm (nano::store::write_transaction const & transaction, nano::block const & block);
+	void confirm (nano::store::write_transaction const & transaction, nano::block_delta const & delta);
+	void rollback (store::write_transaction const & transaction, nano::block const & block);
 
 	std::unique_ptr<ledger_set_any> any_impl;
 	std::unique_ptr<ledger_set_confirmed> confirmed_impl;

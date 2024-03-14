@@ -5,6 +5,7 @@
 #include <nano/node/transport/tcp.hpp>
 #include <nano/secure/ledger.hpp>
 #include <nano/secure/ledger_set_any.hpp>
+#include <nano/secure/ledger_set_confirmed.hpp>
 
 #include <boost/format.hpp>
 
@@ -392,15 +393,9 @@ void nano::frontier_req_server::next ()
 		}
 		else
 		{
-			for (auto i (node->store.confirmation_height.begin (transaction, current.number () + 1)), n (node->store.confirmation_height.end ()); i != n && accounts.size () != max_size; ++i)
+			for (auto i (node->ledger.confirmed.account_upper_bound (transaction, current.number ())), n (node->ledger.confirmed.account_end ()); i != n && accounts.size () != max_size; ++i)
 			{
-				nano::confirmation_height_info const & info (i->second);
-				nano::block_hash const & confirmed_frontier (info.frontier);
-				if (!confirmed_frontier.is_zero ())
-				{
-					nano::account const & account (i->first);
-					accounts.emplace_back (account, confirmed_frontier);
-				}
+				accounts.emplace_back (i->first, i->second.head);
 			}
 		}
 

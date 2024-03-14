@@ -5,6 +5,7 @@
 #include <nano/node/transport/transport.hpp>
 #include <nano/secure/ledger.hpp>
 #include <nano/secure/ledger_set_any.hpp>
+#include <nano/secure/ledger_set_confirmed.hpp>
 #include <nano/store/account.hpp>
 #include <nano/store/block.hpp>
 #include <nano/store/component.hpp>
@@ -303,11 +304,11 @@ nano::asc_pull_ack nano::bootstrap_server::process (const store::transaction & t
 		response_payload.account_head = account_info->head;
 		response_payload.account_block_count = account_info->block_count;
 
-		auto conf_info = store.confirmation_height.get (transaction, target);
+		auto conf_info = ledger.confirmed.get (transaction, target);
 		if (conf_info)
 		{
-			response_payload.account_conf_frontier = conf_info->frontier;
-			response_payload.account_conf_height = conf_info->height;
+			response_payload.account_conf_frontier = conf_info.value ().head;
+			response_payload.account_conf_height = conf_info.value ().block_count;
 		}
 	}
 	// If account is missing the response payload will contain all 0 fields, except for the target

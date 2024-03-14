@@ -49,7 +49,10 @@ bool nano::scheduler::priority::activate (nano::account const & account, store::
 	{
 		return false;
 	}
-	auto block = node.ledger.any.get (transaction, node.ledger.any.successor (transaction, { head.is_zero () ? static_cast<nano::uint256_union> (account) : head, head }).value ());
+	nano::qualified_root root{ head.is_zero () ? static_cast<nano::uint256_union> (account) : head, head };
+	auto successor = node.ledger.any.successor (transaction, root);
+	auto block = node.ledger.any.get (transaction, successor.value ());
+	debug_assert (block != nullptr);
 	if (!node.ledger.dependents_confirmed (transaction, *block))
 	{
 		return false;

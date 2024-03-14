@@ -1,5 +1,6 @@
 #pragma once
 
+#include <nano/secure/account_iterator.hpp>
 #include <nano/secure/receivable_iterator.hpp>
 
 #include <optional>
@@ -22,10 +23,17 @@ namespace nano
 class ledger_set_confirmed
 {
 public:
+	using account_iterator = nano::account_iterator<ledger_set_confirmed>;
 	using receivable_iterator = nano::receivable_iterator<ledger_set_confirmed>;
 
 	ledger_set_confirmed (nano::ledger const & ledger);
 
+	account_iterator account_begin (store::transaction const & transaction) const;
+	account_iterator account_end () const;
+	// Returns the next receivable entry equal or greater than 'key'
+	account_iterator account_lower_bound (store::transaction const & transaction, nano::account const & account) const;
+	// Returns the next receivable entry for an account greater than 'account'
+	account_iterator account_upper_bound (store::transaction const & transaction, nano::account const & account) const;
 	std::optional<nano::uint128_t> balance (store::transaction const & transaction, nano::account const & account) const;
 	std::optional<nano::uint128_t> balance (store::transaction const & transaction, nano::block_hash const & hash) const;
 	bool exists (store::transaction const & transaction, nano::block_hash const & hash) const;

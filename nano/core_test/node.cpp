@@ -147,7 +147,7 @@ TEST (node, send_single)
 	system.wallet (0)->insert_adhoc (nano::dev::genesis_key.prv);
 	system.wallet (1)->insert_adhoc (key2.prv);
 	ASSERT_NE (nullptr, system.wallet (0)->send_action (nano::dev::genesis_key.pub, key2.pub, system.nodes[0]->config.receive_minimum.number ()));
-	ASSERT_EQ (std::numeric_limits<nano::uint128_t>::max () - system.nodes[0]->config.receive_minimum.number (), system.nodes[0]->balance (nano::dev::genesis_key.pub));
+	ASSERT_TIMELY_EQ (5s, std::numeric_limits<nano::uint128_t>::max () - system.nodes[0]->config.receive_minimum.number (), system.nodes[0]->balance (nano::dev::genesis_key.pub));
 	ASSERT_TRUE (system.nodes[0]->balance (key2.pub).is_zero ());
 	ASSERT_TIMELY (10s, !system.nodes[0]->balance (key2.pub).is_zero ());
 }
@@ -159,7 +159,7 @@ TEST (node, send_single_observing_peer)
 	system.wallet (0)->insert_adhoc (nano::dev::genesis_key.prv);
 	system.wallet (1)->insert_adhoc (key2.prv);
 	ASSERT_NE (nullptr, system.wallet (0)->send_action (nano::dev::genesis_key.pub, key2.pub, system.nodes[0]->config.receive_minimum.number ()));
-	ASSERT_EQ (std::numeric_limits<nano::uint128_t>::max () - system.nodes[0]->config.receive_minimum.number (), system.nodes[0]->balance (nano::dev::genesis_key.pub));
+	ASSERT_TIMELY_EQ (5s, std::numeric_limits<nano::uint128_t>::max () - system.nodes[0]->config.receive_minimum.number (), system.nodes[0]->balance (nano::dev::genesis_key.pub));
 	ASSERT_TRUE (system.nodes[0]->balance (key2.pub).is_zero ());
 	ASSERT_TIMELY (10s, std::all_of (system.nodes.begin (), system.nodes.end (), [&] (std::shared_ptr<nano::node> const & node_a) { return !node_a->balance (key2.pub).is_zero (); }));
 }
@@ -1575,6 +1575,7 @@ TEST (node, unconfirmed_send)
 	ASSERT_TIMELY_EQ (5s, node2.get_confirmation_height (node2.store.tx_begin_read (), key2.pub), 1);
 	ASSERT_EQ (node2.balance (key2.pub), 2 * nano::Mxrb_ratio);
 	auto recv1 = node2.ledger.find_receive_block_by_send_hash (node2.store.tx_begin_read (), key2.pub, send1->hash ());
+	ASSERT_NE (nullptr, recv1);
 
 	// create send2 to send from node2 to node1 and save it to node2's ledger without triggering an election (node1 does not hear about it)
 	auto send2 = nano::state_block_builder{}

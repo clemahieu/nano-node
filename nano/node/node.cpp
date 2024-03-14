@@ -22,6 +22,7 @@
 #include <nano/secure/ledger.hpp>
 #include <nano/secure/ledger_set_any.hpp>
 #include <nano/secure/ledger_set_confirmed.hpp>
+#include <nano/secure/ledger_set_unconfirmed.hpp>
 #include <nano/store/component.hpp>
 #include <nano/store/rocksdb/rocksdb.hpp>
 
@@ -194,7 +195,7 @@ nano::node::node (std::shared_ptr<boost::asio::io_context> io_ctx_a, std::filesy
 	scheduler{ *scheduler_impl },
 	aggregator (config, stats, generator, final_generator, history, ledger, wallets, active),
 	wallets (wallets_store.init_error (), *this),
-	backlog{ nano::backlog_population_config (config), store, stats },
+	backlog{ nano::backlog_population_config (config), ledger, stats },
 	ascendboot{ config, block_processor, ledger, network, stats },
 	websocket{ config.websocket_config, observers, wallets, ledger, io_ctx, logger },
 	epoch_upgrader{ *this, ledger, store, network_params, logger },
@@ -943,11 +944,11 @@ bool nano::node::collect_ledger_pruning_targets (std::deque<nano::block_hash> & 
 	uint64_t read_operations (0);
 	bool finish_transaction (false);
 	auto const transaction (store.tx_begin_read ());
-	for (auto i (store.confirmation_height.begin (transaction, last_account_a)), n (store.confirmation_height.end ()); i != n && !finish_transaction;)
+	for (auto i (ledger.confirmed.account_upper_bound (transaction, last_account_a)), n (ledger.confirmed.account_end ()); i != n && !finish_transaction;)
 	{
 		++read_operations;
 		auto const & account (i->first);
-		nano::block_hash hash (i->second.frontier);
+		nano::block_hash hash (i->second.head);
 		uint64_t depth (0);
 		while (!hash.is_zero () && depth < max_depth_a)
 		{
@@ -980,7 +981,7 @@ bool nano::node::collect_ledger_pruning_targets (std::deque<nano::block_hash> & 
 		read_operations += depth;
 		if (read_operations >= batch_read_size_a)
 		{
-			last_account_a = account.number () + 1;
+			last_account_a = account.number ();
 			finish_transaction = true;
 		}
 		else
@@ -1265,8 +1266,7 @@ void nano::node::process_confirmed (nano::election_status const & status_a, uint
 	if (auto block_l = ledger.any.get (ledger.store.tx_begin_read (), hash))
 	{
 		logger.trace (nano::log::type::node, nano::log::detail::process_confirmed, nano::log::arg{ "block", block_l });
-
-		confirming_set.add (block_l->hash ());
+		confirming_set.add (hash);
 	}
 	else if (iteration_a < num_iters)
 	{
@@ -1344,9 +1344,7 @@ void nano::node::bootstrap_block (const nano::block_hash & hash)
 /** Convenience function to easily return the confirmation height of an account. */
 uint64_t nano::node::get_confirmation_height (store::transaction const & transaction_a, nano::account & account_a)
 {
-	nano::confirmation_height_info info;
-	store.confirmation_height.get (transaction_a, account_a, info);
-	return info.height;
+	return ledger.confirmed.height (transaction_a, account_a);
 }
 
 nano::account nano::node::get_node_id () const

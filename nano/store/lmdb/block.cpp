@@ -37,9 +37,16 @@ void nano::store::lmdb::block::put (store::write_transaction const & transaction
 		block.sideband ().serialize (stream, block.type ());
 	}
 	raw_put (transaction, vector, hash);
-	block_predecessor_mdb_set predecessor (transaction, *this);
-	block.visit (predecessor);
-	debug_assert (block.previous ().is_zero () || successor (transaction, block.previous ()) == hash);
+	if (exists (transaction, block.previous ()))
+	{
+		block_predecessor_mdb_set predecessor (transaction, *this);
+		block.visit (predecessor);
+		debug_assert (block.previous ().is_zero () || successor (transaction, block.previous ()) == hash);
+	}
+	else
+	{
+		// Pruned
+	}
 }
 
 void nano::store::lmdb::block::raw_put (store::write_transaction const & transaction_a, std::vector<uint8_t> const & data, nano::block_hash const & hash_a)

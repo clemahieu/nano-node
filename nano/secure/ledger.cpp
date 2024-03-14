@@ -10,6 +10,7 @@
 #include <nano/secure/ledger.hpp>
 #include <nano/secure/ledger_set_any.hpp>
 #include <nano/secure/ledger_set_confirmed.hpp>
+#include <nano/secure/ledger_set_unconfirmed.hpp>
 #include <nano/secure/rep_weights.hpp>
 #include <nano/store/account.hpp>
 #include <nano/store/block.hpp>
@@ -254,8 +255,10 @@ nano::ledger::ledger (nano::store::component & store_a, nano::stats & stat_a, na
 	check_bootstrap_weights{ true },
 	any_impl{ std::make_unique<ledger_set_any> (*this) },
 	confirmed_impl{ std::make_unique<ledger_set_confirmed> (*this) },
+	unconfirmed_impl{ std::make_unique<ledger_set_unconfirmed> (*this) },
 	any{ *any_impl },
-	confirmed{ *confirmed_impl }
+	confirmed{ *confirmed_impl },
+	unconfirmed{ *unconfirmed_impl }
 {
 	if (!store.init_error ())
 	{

@@ -27,6 +27,7 @@ enum class epoch : uint8_t;
 class ledger_constants;
 class ledger_set_any;
 class ledger_set_confirmed;
+class ledger_set_unconfirmed;
 class pending_info;
 class pending_key;
 class stats;
@@ -95,9 +96,11 @@ private:
 
 	std::unique_ptr<ledger_set_any> any_impl;
 	std::unique_ptr<ledger_set_confirmed> confirmed_impl;
+	std::unique_ptr<ledger_set_unconfirmed> unconfirmed_impl;
 
 public:
 	ledger_set_any & any;
 	ledger_set_confirmed & confirmed;
+	ledger_set_unconfirmed & unconfirmed;
 };
 }

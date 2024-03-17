@@ -124,6 +124,36 @@ uint64_t nano::ledger_set_any::height (store::transaction const & transaction, n
 	return block->sideband ().height;
 }
 
+std::optional<std::pair<nano::pending_key, nano::pending_info>> nano::ledger_set_any::receivable_lower_bound (store::transaction const & transaction, nano::account const & account, nano::block_hash const & hash) const
+{
+	auto result = ledger.store.pending.begin (transaction, { account, hash });
+	if (result == ledger.store.pending.end ())
+	{
+		return std::nullopt;
+	}
+	return *result;
+}
+
+auto nano::ledger_set_any::receivable_end () const -> receivable_iterator
+{
+	return receivable_iterator{};
+}
+
+auto nano::ledger_set_any::receivable_upper_bound (store::transaction const & transaction, nano::account const & account) const -> receivable_iterator
+{
+	return receivable_iterator{ transaction, *this, receivable_lower_bound (transaction, account.number () + 1, 0) };
+}
+
+auto nano::ledger_set_any::receivable_upper_bound (store::transaction const & transaction, nano::account const & account, nano::block_hash const & hash) const -> receivable_iterator
+{
+	auto result = receivable_lower_bound (transaction, account, hash.number () + 1);
+	if (!result || result.value ().first.account != account)
+	{
+		return receivable_iterator{ transaction, *this, std::nullopt };
+	}
+	return receivable_iterator{ transaction, *this, result };
+}
+
 std::optional<nano::block_hash> nano::ledger_set_any::successor (store::transaction const & transaction, nano::block_hash const & hash) const
 {
 	return successor (transaction, { hash, hash });

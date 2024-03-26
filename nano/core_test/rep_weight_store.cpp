@@ -73,3 +73,15 @@ TEST (rep_weight_store, for_each_par)
 	ASSERT_EQ (1225, rep_total.load ());
 	ASSERT_EQ (50 * 100, weight_total.load ());
 }
+
+TEST (rep_weights, representation_changes)
+{
+	auto store{ nano::test::make_store () };
+	nano::keypair key1;
+	nano::rep_weights rep_weights{ store->rep_weight };
+	ASSERT_EQ (0, rep_weights.representation_get (key1.pub));
+	rep_weights.representation_put (key1.pub, 1);
+	ASSERT_EQ (1, rep_weights.representation_get (key1.pub));
+	rep_weights.representation_put (key1.pub, 2);
+	ASSERT_EQ (2, rep_weights.representation_get (key1.pub));
+}

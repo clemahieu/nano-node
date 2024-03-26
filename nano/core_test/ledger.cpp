@@ -484,7 +484,8 @@ TEST (ledger, representative_genesis)
 	auto transaction = store.tx_begin_write ();
 	auto latest = ledger.latest (transaction, nano::dev::genesis_key.pub);
 	ASSERT_FALSE (latest.is_zero ());
-	ASSERT_EQ (nano::dev::genesis->hash (), ledger.representative (transaction, latest));
+	ASSERT_EQ (nano::dev::genesis->hash (), ledger.representative_block (transaction, latest));
+	ASSERT_EQ (nano::dev::genesis_key.pub, ledger.representative (transaction, latest));
 }
 
 TEST (ledger, weight)

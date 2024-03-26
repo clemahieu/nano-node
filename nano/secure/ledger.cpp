@@ -95,14 +95,11 @@ public:
 	void change_block (nano::change_block const & block_a) override
 	{
 		auto hash (block_a.hash ());
-		auto rep_block (ledger.representative (transaction, block_a.hashables.previous));
 		auto account = block_a.account ();
 		auto info = ledger.account_info (transaction, account);
 		debug_assert (info);
 		auto balance = ledger.balance (transaction, block_a.hashables.previous).value ();
-		auto block = ledger.store.block.get (transaction, rep_block);
-		release_assert (block != nullptr);
-		auto representative = block->representative_field ().value ();
+		auto representative = ledger.representative (transaction, block_a.hashables.previous);
 		ledger.cache.rep_weights.representation_add_dual (transaction, block_a.hashables.representative, 0 - balance, representative, balance);
 		ledger.store.block.del (transaction, hash);
 		nano::account_info new_info (block_a.hashables.previous, representative, info->open_block, info->balance, nano::seconds_since_epoch (), info->block_count - 1, nano::epoch::epoch_0);
@@ -113,20 +110,13 @@ public:
 	void state_block (nano::state_block const & block_a) override
 	{
 		auto hash (block_a.hash ());
-		nano::block_hash rep_block_hash (0);
-		if (!block_a.hashables.previous.is_zero ())
-		{
-			rep_block_hash = ledger.representative (transaction, block_a.hashables.previous);
-		}
 		nano::uint128_t balance = ledger.balance (transaction, block_a.hashables.previous).value_or (0);
 		auto is_send (block_a.hashables.balance < balance);
 		nano::account representative{};
-		if (!rep_block_hash.is_zero ())
+		if (!block_a.hashables.previous.is_zero ())
 		{
 			// Move existing representation & add in amount delta
-			auto block (ledger.store.block.get (transaction, rep_block_hash));
-			debug_assert (block != nullptr);
-			representative = block->representative_field ().value ();
+			representative = ledger.representative (transaction, block_a.hashables.previous);
 			ledger.cache.rep_weights.representation_add_dual (transaction, representative, balance, block_a.hashables.representative, 0 - block_a.hashables.balance.number ());
 		}
 		else
@@ -906,18 +896,16 @@ nano::block_status nano::ledger::process (store::write_transaction const & trans
 	return processor.result;
 }
 
-nano::block_hash nano::ledger::representative (store::transaction const & transaction_a, nano::block_hash const & hash_a)
+nano::block_hash nano::ledger::representative_block (store::transaction const & transaction, nano::block_hash const & hash)
 {
-	auto result (representative_calculated (transaction_a, hash_a));
-	debug_assert (result.is_zero () || block_exists (transaction_a, result));
-	return result;
+	representative_visitor visitor (transaction, *this);
+	visitor.compute (hash);
+	return visitor.result;
 }
 
-nano::block_hash nano::ledger::representative_calculated (store::transaction const & transaction_a, nano::block_hash const & hash_a)
+nano::account nano::ledger::representative (store::transaction const & transaction_a, nano::block_hash const & hash_a)
 {
-	representative_visitor visitor (transaction_a, *this);
-	visitor.compute (hash_a);
-	return visitor.result;
+	return block (transaction_a, representative_block (transaction_a, hash_a))->representative_field ().value ();
 }
 
 bool nano::ledger::block_or_pruned_exists (nano::block_hash const & hash_a) const

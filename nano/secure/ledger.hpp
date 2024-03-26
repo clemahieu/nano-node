@@ -69,8 +69,8 @@ public:
 	bool block_confirmed (store::transaction const &, nano::block_hash const &) const;
 	nano::block_hash latest (store::transaction const &, nano::account const &);
 	nano::root latest_root (store::transaction const &, nano::account const &);
-	nano::block_hash representative (store::transaction const &, nano::block_hash const &);
-	nano::block_hash representative_calculated (store::transaction const &, nano::block_hash const &);
+	nano::block_hash representative_block (store::transaction const & transaction, nano::block_hash const & hash);
+	nano::account representative (store::transaction const &, nano::block_hash const &);
 	bool block_or_pruned_exists (nano::block_hash const &) const;
 	bool block_or_pruned_exists (store::transaction const &, nano::block_hash const &) const;
 	std::string block_text (char const *);

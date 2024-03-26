@@ -23,8 +23,8 @@ TEST (ledger_weight, send_same)
 		.sign (nano::dev::genesis_key.prv, nano::dev::genesis_key.pub)
 		.work (ctx.pool ().generate (nano::dev::genesis->hash ()).value ())
 		.build ();
-	ASSERT_EQ (nano::dev::genesis->balance (), ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ASSERT_EQ (nano::block_status::progress, ctx.ledger ().process (ctx.store ().tx_begin_write (), block));
+	ASSERT_EQ (nano::dev::genesis->balance (), ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ctx.ledger ().confirm (ctx.store ().tx_begin_write (), block->hash ());
 	ASSERT_EQ (nano::dev::genesis->balance ().number () - 1, ctx.ledger ().weight (nano::dev::genesis_key.pub));
 }
@@ -43,8 +43,8 @@ TEST (ledger_weight, send_different)
 		.sign (nano::dev::genesis_key.prv, nano::dev::genesis_key.pub)
 		.work (ctx.pool ().generate (nano::dev::genesis->hash ()).value ())
 		.build ();
-	ASSERT_EQ (nano::dev::genesis->balance (), ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ASSERT_EQ (nano::block_status::progress, ctx.ledger ().process (ctx.store ().tx_begin_write (), block));
+	ASSERT_EQ (nano::dev::genesis->balance (), ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ctx.ledger ().confirm (ctx.store ().tx_begin_write (), block->hash ());
 	ASSERT_EQ (nano::dev::genesis->balance ().number () - 1, ctx.ledger ().weight (key.pub));
 }
@@ -73,9 +73,9 @@ TEST (ledger_weight, open)
 		.sign (key.prv, key.pub)
 		.work (ctx.pool ().generate (key.pub).value ())
 		.build ();
-	ASSERT_EQ (nano::dev::genesis->balance ().number () - 1, ctx.ledger ().weight (nano::dev::genesis_key.pub));
-	ASSERT_EQ (0, ctx.ledger ().weight (key.pub));
 	ASSERT_EQ (nano::block_status::progress, ctx.ledger ().process (ctx.store ().tx_begin_write (), open));
+	ASSERT_EQ (nano::dev::genesis->balance (), ctx.ledger ().weight (nano::dev::genesis_key.pub));
+	ASSERT_EQ (0, ctx.ledger ().weight (key.pub));
 	ctx.ledger ().confirm (ctx.store ().tx_begin_write (), open->hash ());
 	ASSERT_EQ (nano::dev::genesis->balance ().number () - 1, ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ASSERT_EQ (1, ctx.ledger ().weight (key.pub));
@@ -95,9 +95,9 @@ TEST (ledger_weight, change)
 		.sign (nano::dev::genesis_key.prv, nano::dev::genesis_key.pub)
 		.work (ctx.pool ().generate (nano::dev::genesis->hash ()).value ())
 		.build ();
+	ASSERT_EQ (nano::block_status::progress, ctx.ledger ().process (ctx.store ().tx_begin_write (), block));
 	ASSERT_EQ (nano::dev::genesis->balance (), ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ASSERT_EQ (0, ctx.ledger ().weight (key.pub));
-	ASSERT_EQ (nano::block_status::progress, ctx.ledger ().process (ctx.store ().tx_begin_write (), block));
 	ctx.ledger ().confirm (ctx.store ().tx_begin_write (), block->hash ());
 	ASSERT_EQ (0, ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ASSERT_EQ (nano::dev::genesis->balance ().number (), ctx.ledger ().weight (key.pub));
@@ -114,9 +114,9 @@ TEST (ledger_weight, change_legacy)
 		.sign (nano::dev::genesis_key.prv, nano::dev::genesis_key.pub)
 		.work (ctx.pool ().generate (nano::dev::genesis->hash ()).value ())
 		.build ();
+	ASSERT_EQ (nano::block_status::progress, ctx.ledger ().process (ctx.store ().tx_begin_write (), block));
 	ASSERT_EQ (nano::dev::genesis->balance (), ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ASSERT_EQ (0, ctx.ledger ().weight (key.pub));
-	ASSERT_EQ (nano::block_status::progress, ctx.ledger ().process (ctx.store ().tx_begin_write (), block));
 	ctx.ledger ().confirm (ctx.store ().tx_begin_write (), block->hash ());
 	ASSERT_EQ (0, ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ASSERT_EQ (nano::dev::genesis->balance ().number (), ctx.ledger ().weight (key.pub));
@@ -133,8 +133,8 @@ TEST (ledger_weight, send_legacy)
 		.sign (nano::dev::genesis_key.prv, nano::dev::genesis_key.pub)
 		.work (ctx.pool ().generate (nano::dev::genesis->hash ()).value ())
 		.build ();
-	ASSERT_EQ (nano::dev::genesis->balance (), ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ASSERT_EQ (nano::block_status::progress, ctx.ledger ().process (ctx.store ().tx_begin_write (), block));
+	ASSERT_EQ (nano::dev::genesis->balance (), ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ctx.ledger ().confirm (ctx.store ().tx_begin_write (), block->hash ());
 	ASSERT_EQ (nano::dev::genesis->balance ().number () - 1, ctx.ledger ().weight (nano::dev::genesis_key.pub));
 }
@@ -166,8 +166,8 @@ TEST (ledger_weight, receive_legacy)
 		.sign (nano::dev::genesis_key.prv, nano::dev::genesis_key.pub)
 		.work (ctx.pool ().generate (send2->hash ()).value ())
 		.build ();
-	ASSERT_EQ (nano::dev::genesis->balance ().number () - 2, ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ASSERT_EQ (nano::block_status::progress, ctx.ledger ().process (ctx.store ().tx_begin_write (), receive));
+	ASSERT_EQ (nano::dev::genesis->balance (), ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ctx.ledger ().confirm (ctx.store ().tx_begin_write (), receive->hash ());
 	ASSERT_EQ (nano::dev::genesis->balance ().number () - 1, ctx.ledger ().weight (nano::dev::genesis_key.pub));
 }
@@ -193,9 +193,9 @@ TEST (ledger_weight, open_legacy)
 		.sign (key.prv, key.pub)
 		.work (ctx.pool ().generate (key.pub).value ())
 		.build ();
-	ASSERT_EQ (nano::dev::genesis->balance ().number () - 1, ctx.ledger ().weight (nano::dev::genesis_key.pub));
-	ASSERT_EQ (0, ctx.ledger ().weight (key.pub));
 	ASSERT_EQ (nano::block_status::progress, ctx.ledger ().process (ctx.store ().tx_begin_write (), open));
+	ASSERT_EQ (nano::dev::genesis->balance (), ctx.ledger ().weight (nano::dev::genesis_key.pub));
+	ASSERT_EQ (0, ctx.ledger ().weight (key.pub));
 	ctx.ledger ().confirm (ctx.store ().tx_begin_write (), open->hash ());
 	ASSERT_EQ (nano::dev::genesis->balance ().number () - 1, ctx.ledger ().weight (nano::dev::genesis_key.pub));
 	ASSERT_EQ (1, ctx.ledger ().weight (key.pub));

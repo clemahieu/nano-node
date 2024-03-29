@@ -305,8 +305,8 @@ uint64_t nano::test::account_height (nano::node const & node, nano::account cons
 void nano::test::print_all_account_info (nano::node & node)
 {
 	auto const tx = node.ledger.store.tx_begin_read ();
-	auto const end = node.ledger.store.account.end ();
-	for (auto i = node.ledger.store.account.begin (tx); i != end; ++i)
+	auto const end = node.ledger.any.account_end ();
+	for (auto i = node.ledger.any.account_lower_bound (tx, 0); i != end; ++i)
 	{
 		nano::account acc = i->first;
 		nano::account_info acc_info = i->second;

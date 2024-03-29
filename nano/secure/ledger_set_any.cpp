@@ -20,6 +20,32 @@ std::optional<nano::account> nano::ledger_set_any::account (store::transaction c
 	return block_l->account ();
 }
 
+auto nano::ledger_set_any::account_begin (store::transaction const & transaction) const -> account_iterator
+{
+	return account_lower_bound (transaction, 0);
+}
+
+auto nano::ledger_set_any::account_end () const -> account_iterator
+{
+	return account_iterator{};
+}
+
+// Returns the next receivable entry equal or greater than 'key'
+auto nano::ledger_set_any::account_lower_bound (store::transaction const & transaction, nano::account const & account) const -> account_iterator
+{
+	auto disk = ledger.store.account.begin (transaction, account);
+	if (disk == ledger.store.account.end ())
+	{
+		return account_iterator{};
+	}
+	return account_iterator{ transaction, *this, *disk };
+}
+
+auto nano::ledger_set_any::account_upper_bound (store::transaction const & transaction, nano::account const & account) const -> account_iterator
+{
+	return account_lower_bound (transaction, account.number () + 1);
+}
+
 std::optional<nano::uint128_t> nano::ledger_set_any::amount (store::transaction const & transaction, nano::block_hash const & hash) const
 {
 	auto block_l = get (transaction, hash);

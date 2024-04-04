@@ -278,9 +278,9 @@ if(NANO_UBSAN)
 
   if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(
-      "-fsanitize-ignorelist=${PROJECT_SOURCE_DIR}/sanitize_ignorelist_ubsan")
+      "-fsanitize-blacklist=${PROJECT_SOURCE_DIR}/ubsan_blacklist")
     add_link_options(
-      "-fsanitize-ignorelist=${PROJECT_SOURCE_DIR}/sanitize_ignorelist_ubsan")
+      "-fsanitize-blacklist=${PROJECT_SOURCE_DIR}/ubsan_blacklist")
   endif()
 
   add_definitions(-DED25519_NO_INLINE_ASM)

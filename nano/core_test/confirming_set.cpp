@@ -28,6 +28,7 @@ TEST (confirming_set, add_exists)
 	auto send = ctx.blocks ()[0];
 	confirming_set.add (send->hash ());
 	ASSERT_TRUE (confirming_set.exists (send->hash ()));
+	ASSERT_FALSE (confirming_set.exists (42));
 }
 
 TEST (confirming_set, process_one)

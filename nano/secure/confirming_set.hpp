@@ -15,6 +15,12 @@ class block;
 class ledger;
 }
 
+namespace rocksdb
+{
+class ColumnFamilyHandle;
+class DB;
+}
+
 namespace nano
 {
 /**
@@ -43,10 +49,13 @@ public:
 
 private:
 	void run ();
+	void swap ();
 	nano::ledger & ledger;
 	std::chrono::milliseconds batch_time;
-	std::unordered_set<nano::block_hash> set;
-	std::unordered_set<nano::block_hash> processing;
+	std::unique_ptr<::rocksdb::DB> db;
+	bool dirty{ false };
+	std::unique_ptr<::rocksdb::ColumnFamilyHandle> front;
+	std::unique_ptr<::rocksdb::ColumnFamilyHandle> back;
 	bool stopped{ false };
 	mutable std::mutex mutex;
 	std::condition_variable condition;

@@ -27,8 +27,8 @@ TEST (confirming_set, add_exists)
 	nano::confirming_set confirming_set (ctx.ledger ());
 	auto send = ctx.blocks ()[0];
 	confirming_set.add (send->hash ());
-	ASSERT_TRUE (confirming_set.exists (confirming_set.snapshot (), send->hash ()));
-	ASSERT_FALSE (confirming_set.exists (confirming_set.snapshot (), 42));
+	ASSERT_TRUE (confirming_set.exists (confirming_set.snapshot ().get (), send->hash ()));
+	ASSERT_FALSE (confirming_set.exists (confirming_set.snapshot ().get (), 42));
 }
 
 TEST (confirming_set, process_one)

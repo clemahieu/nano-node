@@ -14,11 +14,16 @@ namespace nano::secure
 
 class transaction
 {
-	::rocksdb::Snapshot const * confirming_set_impl;
+public:
+	using snapshot_ptr = std::unique_ptr<::rocksdb::Snapshot const, std::function<void (::rocksdb::Snapshot const *)>>;
+
+private:
+	snapshot_ptr confirming_set_impl;
 
 public:
-	transaction (::rocksdb::Snapshot const * confirming_set) :
-		confirming_set_impl{ confirming_set }
+
+	transaction (snapshot_ptr && confirming_set) :
+		confirming_set_impl{ std::move (confirming_set) }
 	{
 	}
 	virtual ~transaction () = default;
@@ -39,7 +44,7 @@ public:
 
 	::rocksdb::Snapshot const * confirming_set () const
 	{
-		return confirming_set_impl;
+		return confirming_set_impl.get ();
 	}
 };
 
@@ -48,8 +53,8 @@ class write_transaction : public transaction
 	nano::store::write_transaction txn;
 
 public:
-	explicit write_transaction (::rocksdb::Snapshot const * snapshot, nano::store::write_transaction && t) noexcept :
-		transaction{ snapshot },
+	explicit write_transaction (snapshot_ptr && snapshot, nano::store::write_transaction && t) noexcept :
+		transaction{ std::move (snapshot) },
 		txn{ std::move (t) }
 	{
 	}
@@ -93,8 +98,8 @@ class read_transaction : public transaction
 	nano::store::read_transaction txn;
 
 public:
-	explicit read_transaction (::rocksdb::Snapshot const * snapshot, nano::store::read_transaction && t) noexcept :
-		transaction{ snapshot },
+	explicit read_transaction (snapshot_ptr && snapshot, nano::store::read_transaction && t) noexcept :
+		transaction{ std::move (snapshot) },
 		txn{ std::move (t) }
 	{
 	}

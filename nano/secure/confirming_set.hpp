@@ -33,6 +33,8 @@ class confirming_set final
 	friend class confirmation_height_pruned_source_Test;
 
 public:
+	using snapshot_ptr = std::unique_ptr<::rocksdb::Snapshot const, std::function<void (::rocksdb::Snapshot const *)>>;
+
 	confirming_set (nano::ledger & ledger, std::chrono::milliseconds batch_time = std::chrono::milliseconds{ 500 });
 	~confirming_set ();
 
@@ -43,7 +45,7 @@ public:
 	// Added blocks will remain in this set until after ledger has them marked as confirmed.
 	bool exists (::rocksdb::Snapshot const * snapshot, nano::block_hash const & hash) const;
 	std::size_t size (::rocksdb::Snapshot const * snapshot) const;
-	::rocksdb::Snapshot const * snapshot () const;
+	snapshot_ptr snapshot () const;
 	std::unique_ptr<container_info_component> collect_container_info (std::string const & name) const;
 
 	// Observers will be called once ledger has blocks marked as confirmed

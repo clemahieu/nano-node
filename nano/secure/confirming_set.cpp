@@ -108,9 +108,9 @@ std::size_t nano::confirming_set::size (rocksdb::Snapshot const * snapshot) cons
 	return front_size + back_size;
 }
 
-rocksdb::Snapshot const * nano::confirming_set::snapshot () const
+auto nano::confirming_set::snapshot () const -> snapshot_ptr
 {
-	return db->GetSnapshot ();
+	return snapshot_ptr{ db->GetSnapshot (), [db = db.get ()] (::rocksdb::Snapshot const * snapshot) { db->ReleaseSnapshot (snapshot); } };
 }
 
 void nano::confirming_set::run ()
@@ -186,6 +186,6 @@ void nano::confirming_set::swap ()
 std::unique_ptr<nano::container_info_component> nano::confirming_set::collect_container_info (std::string const & name) const
 {
 	auto composite = std::make_unique<container_info_composite> (name);
-	composite->add_component (std::make_unique<container_info_leaf> (container_info{ "size", size (snapshot ()), sizeof (nano::block_hash) }));
+	composite->add_component (std::make_unique<container_info_leaf> (container_info{ "size", size (snapshot ().get ()), sizeof (nano::block_hash) }));
 	return composite;
 }

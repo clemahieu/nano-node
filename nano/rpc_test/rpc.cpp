@@ -5812,7 +5812,8 @@ TEST (rpc, block_confirmed)
 	ASSERT_TRUE (nano::test::start_elections (system, *node, { send }, true));
 
 	// Wait until the confirmation height has been set
-	ASSERT_TIMELY (5s, node->ledger.block_confirmed (node->ledger.tx_begin_read (), send->hash ()) && !node->ledger.confirming.exists (send->hash ()));
+	auto tx = node->ledger.tx_begin_read ();
+	ASSERT_TIMELY (5s, node->ledger.block_confirmed (tx, send->hash ()) && !node->ledger.confirming.exists (tx.confirming_set (), send->hash ()));
 
 	// Requesting confirmation for this should now succeed
 	request.put ("hash", send->hash ().to_string ());

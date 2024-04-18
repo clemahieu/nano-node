@@ -96,7 +96,9 @@ void nano::active_transactions::block_cemented_callback (std::shared_ptr<nano::b
 		status = election->get_status ();
 		votes = election->votes_with_weight ();
 	}
-	if (confirming_set.exists (block->hash ()))
+	recently_cemented.put (status);
+	auto transaction = node.ledger.tx_begin_read ();
+	if (confirming_set.exists (transaction.confirming_set (), block->hash ()))
 	{
 		status.type = nano::election_status_type::active_confirmed_quorum;
 	}
@@ -108,8 +110,6 @@ void nano::active_transactions::block_cemented_callback (std::shared_ptr<nano::b
 	{
 		status.type = nano::election_status_type::inactive_confirmation_height;
 	}
-	recently_cemented.put (status);
-	auto transaction = node.ledger.tx_begin_read ();
 	notify_observers (transaction, status, votes);
 	bool cemented_bootstrap_count_reached = node.ledger.cemented_count () >= node.ledger.bootstrap_weight_max_blocks;
 	bool was_active = status.type == nano::election_status_type::active_confirmed_quorum || status.type == nano::election_status_type::active_confirmation_height;

@@ -1198,7 +1198,7 @@ bool nano::wallet::search_receivable (store::transaction const & wallet_transact
 							// Receive confirmed block
 							receive_async (hash, representative, amount, account, [] (std::shared_ptr<nano::block> const &) {});
 						}
-						else if (!wallets.node.ledger.confirming.exists (hash))
+						else if (!wallets.node.ledger.confirming.exists (block_transaction.confirming_set (), hash))
 						{
 							auto block = wallets.node.ledger.block (block_transaction, hash);
 							if (block)

@@ -1244,7 +1244,7 @@ TEST (active_transactions, activate_inactive)
 	ASSERT_NE (nullptr, election);
 	election->force_confirm ();
 
-	ASSERT_TIMELY (5s, !node.ledger.confirming.exists (send2->hash ()));
+	ASSERT_TIMELY (5s, !node.ledger.confirming.exists (node.ledger.tx_begin_read ().confirming_set (), send2->hash ()));
 	ASSERT_TIMELY (5s, node.block_confirmed (send2->hash ()));
 	ASSERT_TIMELY (5s, node.block_confirmed (send->hash ()));
 

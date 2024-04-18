@@ -4,13 +4,23 @@
 
 #include <utility> // For std::move
 
+namespace rocksdb
+{
+class Snapshot;
+}
+
 namespace nano::secure
 {
 
 class transaction
 {
+	::rocksdb::Snapshot const * confirming_set_impl;
+
 public:
-	transaction () = default;
+	transaction (::rocksdb::Snapshot const * confirming_set) :
+		confirming_set_impl{ confirming_set }
+	{
+	}
 	virtual ~transaction () = default;
 
 	// Deleting copy and assignment operations
@@ -26,6 +36,11 @@ public:
 
 	// Conversion operator to const nano::store::transaction&
 	virtual operator const nano::store::transaction & () const = 0;
+	
+	::rocksdb::Snapshot const * confirming_set () const
+	{
+		return confirming_set_impl;
+	}
 };
 
 class write_transaction : public transaction
@@ -33,8 +48,9 @@ class write_transaction : public transaction
 	nano::store::write_transaction txn;
 
 public:
-	explicit write_transaction (nano::store::write_transaction && t) noexcept :
-		txn (std::move (t))
+	explicit write_transaction (::rocksdb::Snapshot const * snapshot, nano::store::write_transaction && t) noexcept :
+		transaction{ snapshot },
+		txn{ std::move (t) }
 	{
 	}
 
@@ -77,8 +93,9 @@ class read_transaction : public transaction
 	nano::store::read_transaction txn;
 
 public:
-	explicit read_transaction (nano::store::read_transaction && t) noexcept :
-		txn (std::move (t))
+	explicit read_transaction (::rocksdb::Snapshot const * snapshot, nano::store::read_transaction && t) noexcept :
+		transaction{ snapshot },
+		txn{ std::move (t) }
 	{
 	}
 

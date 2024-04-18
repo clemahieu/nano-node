@@ -1250,7 +1250,7 @@ TEST (confirmation_height, many_accounts_send_receive_self_no_elections)
 		ASSERT_NO_ERROR (system.poll ());
 	}
 
-	while (confirming_set.size () > 0)
+	while (confirming_set.size (ledger.tx_begin_read ().confirming_set ()) > 0)
 	{
 		ASSERT_NO_ERROR (system.poll ());
 	}
@@ -2077,7 +2077,7 @@ TEST (node, wallet_create_block_confirm_conflicts)
 			election->force_confirm ();
 		}
 
-		ASSERT_TIMELY (120s, node->ledger.block_confirmed (node->ledger.tx_begin_read (), latest) && node->ledger.confirming.size () == 0);
+		ASSERT_TIMELY (120s, node->ledger.block_confirmed (node->ledger.tx_begin_read (), latest) && node->ledger.confirming.size (node->ledger.tx_begin_read ().confirming_set ()) == 0);
 		done = true;
 		t.join ();
 	}

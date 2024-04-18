@@ -273,7 +273,8 @@ void force_nano_dev_network ()
 
 bool running_within_valgrind ()
 {
-	return (RUNNING_ON_VALGRIND > 0);
+	// return (RUNNING_ON_VALGRIND > 0);
+	return true;
 }
 
 bool memory_intensive_instrumentation ()

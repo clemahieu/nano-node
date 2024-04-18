@@ -33,7 +33,6 @@ nano::confirming_set::confirming_set (nano::ledger & ledger, std::chrono::millis
 	std::filesystem::path db_path = nano::unique_path () / "confirming_set";
 	std::string db_path_str = db_path.string ();
 	rocksdb::DB * db_l;
-	std::cerr << db_path_str << std::endl;
 	auto front_status = rocksdb::DB::Open (options, db_path_str, &db_l);
 	release_assert (front_status.ok (), "Unable to open front database");
 	db.reset (db_l);
@@ -82,12 +81,14 @@ void nano::confirming_set::stop ()
 	std::cerr << '\0';
 }
 
-bool nano::confirming_set::exists (nano::block_hash const & hash) const
+bool nano::confirming_set::exists (rocksdb::Snapshot const * snapshot, nano::block_hash const & hash) const
 {
 	std::lock_guard lock{ mutex };
 	std::string junk;
 	rocksdb::Slice slice{ reinterpret_cast<const char *> (&hash), sizeof (hash) };
-	auto front_status = db->Get (rocksdb::ReadOptions{}, front.get (), slice, &junk);
+	rocksdb::ReadOptions options;
+	options.snapshot = snapshot;
+	auto front_status = db->Get (options, front.get (), slice, &junk);
 	debug_assert (front_status.ok () || front_status.IsNotFound ());
 	if (front_status.ok ())
 	{
@@ -98,14 +99,18 @@ bool nano::confirming_set::exists (nano::block_hash const & hash) const
 	return back_status.ok ();
 }
 
-std::size_t nano::confirming_set::size () const
+std::size_t nano::confirming_set::size (rocksdb::Snapshot const * snapshot) const
 {
-	std::lock_guard lock{ mutex };
 	uint64_t front_size;
 	db->GetIntProperty (front.get (), "rocksdb.estimate-num-keys", &front_size);
 	uint64_t back_size;
 	db->GetIntProperty (back.get (), "rocksdb.estimate-num-keys", &back_size);
 	return front_size + back_size;
+}
+
+rocksdb::Snapshot const * nano::confirming_set::snapshot () const
+{
+	return db->GetSnapshot();
 }
 
 void nano::confirming_set::run ()
@@ -181,6 +186,6 @@ void nano::confirming_set::swap ()
 std::unique_ptr<nano::container_info_component> nano::confirming_set::collect_container_info (std::string const & name) const
 {
 	auto composite = std::make_unique<container_info_composite> (name);
-	composite->add_component (std::make_unique<container_info_leaf> (container_info{ "size", size (), sizeof (nano::block_hash) }));
+	composite->add_component (std::make_unique<container_info_leaf> (container_info{ "size", size (snapshot ()), sizeof (nano::block_hash) }));
 	return composite;
 }

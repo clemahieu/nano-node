@@ -27,8 +27,8 @@ TEST (confirming_set, add_exists)
 	nano::confirming_set confirming_set (ctx.ledger ());
 	auto send = ctx.blocks ()[0];
 	confirming_set.add (send->hash ());
-	ASSERT_TRUE (confirming_set.exists (send->hash ()));
-	ASSERT_FALSE (confirming_set.exists (42));
+	ASSERT_TRUE (confirming_set.exists (confirming_set.snapshot (), send->hash ()));
+	ASSERT_FALSE (confirming_set.exists (confirming_set.snapshot (), 42));
 }
 
 TEST (confirming_set, process_one)
@@ -243,7 +243,7 @@ TEST (confirmation_callback, dependent_election)
 	// Wait for blocks to be confirmed in ledger, callbacks will happen after
 	ASSERT_TIMELY_EQ (5s, 3, node->stats.count (nano::stat::type::confirmation_height, nano::stat::detail::blocks_confirmed, nano::stat::dir::in));
 	// Once the item added to the confirming set no longer exists, callbacks have completed
-	ASSERT_TIMELY (5s, !node->ledger.confirming.exists (send2->hash ()));
+	ASSERT_TIMELY (5s, !node->ledger.confirming.exists (node->ledger.tx_begin_read ().confirming_set (), send2->hash ()));
 
 	ASSERT_TIMELY_EQ (5s, 1, node->stats.count (nano::stat::type::confirmation_observer, nano::stat::detail::active_quorum, nano::stat::dir::out));
 	ASSERT_TIMELY_EQ (5s, 1, node->stats.count (nano::stat::type::confirmation_observer, nano::stat::detail::active_conf_height, nano::stat::dir::out));

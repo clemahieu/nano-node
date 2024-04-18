@@ -36,7 +36,7 @@ public:
 
 	// Conversion operator to const nano::store::transaction&
 	virtual operator const nano::store::transaction & () const = 0;
-	
+
 	::rocksdb::Snapshot const * confirming_set () const
 	{
 		return confirming_set_impl;

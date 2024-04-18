@@ -1180,14 +1180,9 @@ bool nano::node::block_confirmed (nano::block_hash const & hash_a)
 	return ledger.block_confirmed (ledger.tx_begin_read (), hash_a);
 }
 
-bool nano::node::block_confirmed_or_being_confirmed (nano::secure::transaction const & transaction, nano::block_hash const & hash_a)
-{
-	return ledger.confirming.exists (transaction.confirming_set (), hash_a) || ledger.block_confirmed (transaction, hash_a);
-}
-
 bool nano::node::block_confirmed_or_being_confirmed (nano::block_hash const & hash_a)
 {
-	return block_confirmed_or_being_confirmed (ledger.tx_begin_read (), hash_a);
+	return ledger.block_confirmed_or_being_confirmed (ledger.tx_begin_read (), hash_a);
 }
 
 void nano::node::ongoing_online_weight_calculation_queue ()

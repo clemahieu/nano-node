@@ -155,7 +155,7 @@ void nano::scheduler::optimistic::run_one (secure::transaction const & transacti
 	if (block)
 	{
 		// Ensure block is not already confirmed
-		if (!node.block_confirmed_or_being_confirmed (transaction, block->hash ()))
+		if (!ledger.block_confirmed_or_being_confirmed (transaction, block->hash ()))
 		{
 			// Try to insert it into AEC
 			// We check for AEC vacancy inside our predicate

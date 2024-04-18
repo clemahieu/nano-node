@@ -1616,3 +1616,8 @@ std::unique_ptr<nano::container_info_component> nano::ledger::collect_container_
 	composite->add_component (confirming.collect_container_info ("confirming"));
 	return composite;
 }
+
+bool nano::ledger::block_confirmed_or_being_confirmed (nano::secure::transaction const & transaction, nano::block_hash const & hash_a)
+{
+	return confirming.exists (transaction.confirming_set (), hash_a) || block_confirmed (transaction, hash_a);
+}

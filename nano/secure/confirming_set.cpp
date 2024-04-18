@@ -110,7 +110,7 @@ std::size_t nano::confirming_set::size (rocksdb::Snapshot const * snapshot) cons
 
 rocksdb::Snapshot const * nano::confirming_set::snapshot () const
 {
-	return db->GetSnapshot();
+	return db->GetSnapshot ();
 }
 
 void nano::confirming_set::run ()

@@ -106,6 +106,7 @@ public:
 	uint64_t pruned_count () const;
 	void start ();
 	void stop ();
+	bool block_confirmed_or_being_confirmed (nano::secure::transaction const &, nano::block_hash const &);
 	static nano::uint128_t const unit;
 	nano::ledger_constants & constants;
 	nano::store::component & store;

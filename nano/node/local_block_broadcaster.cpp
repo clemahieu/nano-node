@@ -153,7 +153,7 @@ void nano::local_block_broadcaster::cleanup ()
 			// This block has never been broadcasted, keep it so it's broadcasted at least once
 			return false;
 		}
-		if (node.block_confirmed_or_being_confirmed (transaction, entry.block->hash ()))
+		if (node.ledger.block_confirmed_or_being_confirmed (transaction, entry.block->hash ()))
 		{
 			stats.inc (nano::stat::type::local_block_broadcaster, nano::stat::detail::erase_confirmed);
 			return true;

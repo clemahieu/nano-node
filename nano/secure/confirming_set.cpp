@@ -39,11 +39,11 @@ nano::confirming_set::confirming_set (nano::ledger & ledger, std::chrono::millis
 	rocksdb::ColumnFamilyHandle * front_l;
 	auto front_column_status = db->CreateColumnFamily (rocksdb::ColumnFamilyOptions{}, "left", &front_l);
 	release_assert (front_column_status.ok ());
-	front.reset (front_l);
+	front = decltype(front){ front_l, [db = db.get ()] (auto const & ptr) { db->DestroyColumnFamilyHandle (ptr); } };
 	rocksdb::ColumnFamilyHandle * back_l;
 	auto back_column_status = db->CreateColumnFamily (rocksdb::ColumnFamilyOptions{}, "right", &back_l);
 	release_assert (back_column_status.ok ());
-	back.reset (back_l);
+	back = decltype(back){ back_l, [db = db.get ()] (auto const & ptr) { db->DestroyColumnFamilyHandle (ptr); } };
 }
 
 nano::confirming_set::~confirming_set ()
@@ -165,9 +165,8 @@ void nano::confirming_set::run ()
 			}
 			lock.lock ();
 			auto name = back->GetName ();
-			auto status = db->DropColumnFamily (back.get ());
+			auto status = db->DropColumnFamily (back.release ());
 			debug_assert (status.ok ());
-			back.reset ();
 			rocksdb::ColumnFamilyHandle * back_l;
 			auto back_column_status = db->CreateColumnFamily (rocksdb::ColumnFamilyOptions{}, name, &back_l);
 			release_assert (back_column_status.ok ());

@@ -59,8 +59,8 @@ private:
 	std::chrono::milliseconds batch_time;
 	std::unique_ptr<::rocksdb::DB> db;
 	bool dirty{ false };
-	std::unique_ptr<::rocksdb::ColumnFamilyHandle> front;
-	std::unique_ptr<::rocksdb::ColumnFamilyHandle> back;
+	std::unique_ptr<::rocksdb::ColumnFamilyHandle, std::function<void (::rocksdb::ColumnFamilyHandle *)>> front;
+	std::unique_ptr<::rocksdb::ColumnFamilyHandle, std::function<void (::rocksdb::ColumnFamilyHandle *)>> back;
 	bool stopped{ false };
 	mutable std::mutex mutex;
 	std::condition_variable condition;

@@ -32,7 +32,7 @@ jobs:
       - name: Install perf and FlameGraph
         run: |
           sudo apt-get update
-          sudo apt-get install -y binutils-dev flex bison linux-tools-common linux-tools-generic linux-tools-$(uname -r)
+          sudo apt-get install -y binutils-dev flex bison
           git clone https://github.com/brendangregg/FlameGraph.git
           export PATH=$PATH:$(pwd)/FlameGraph
 
@@ -40,7 +40,9 @@ jobs:
         run: |
           wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.9.3.tar.xz
           tar -xf linux-6.9.3.tar.xz
+          which perf
           NO_LIBELF=1 NO_LIBTRACEEVENT=1 make install-bin -C linux-6.9.3/tools/perf/
+          which perf
 
       - name: Build Tests
         id: build

@@ -59,7 +59,7 @@ jobs:
       - name: Generate Flamegraph
         if: steps.build.outcome == 'success'
         run: |
-          perf script -i perf.data > out.perf
+          perf script -v -i perf.data > out.perf
           ../FlameGraph/stackcollapse-perf.pl out.perf > out.folded
           ../FlameGraph/flamegraph.pl out.folded > ${{ env.OUTPUT_FILE }}
         working-directory: build

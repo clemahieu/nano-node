@@ -51,7 +51,7 @@ jobs:
 
       - name: Run Flamegraph Tests
         if: steps.build.outcome == 'success'
-        run: sudo ../linux-6.9.3/tools/perf/perf record -F 397 -g --call-graph dwarf -o perf.data -- ../ci/tests/run-flamegraph-tests.sh ${{ matrix.TEST_NAME }}
+        run: sudo ../linux-6.9.3/tools/perf/perf record -F 397 -g -o perf.data -- ../ci/tests/run-flamegraph-tests.sh ${{ matrix.TEST_NAME }}
         working-directory: build
 
       - name: CHOWN perf.data

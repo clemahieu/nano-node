@@ -41,8 +41,9 @@ jobs:
           wget -q https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.9.3.tar.xz
           tar -xf linux-6.9.3.tar.xz
           which perf
+          perf -v
           NO_LIBTRACEEVENT=1 make install-bin -C linux-6.9.3/tools/perf/
-          which perf
+          linux-6.9.3/tools/perf/perf -v
 
       - name: Build Tests
         id: build
@@ -50,7 +51,7 @@ jobs:
 
       - name: Run Flamegraph Tests
         if: steps.build.outcome == 'success'
-        run: sudo perf record -F 397 -g --call-graph dwarf -o perf.data -- ../ci/tests/run-flamegraph-tests.sh ${{ matrix.TEST_NAME }}
+        run: sudo linux-6.9.3/tools/perf/perf record -F 397 -g --call-graph dwarf -o perf.data -- ../ci/tests/run-flamegraph-tests.sh ${{ matrix.TEST_NAME }}
         working-directory: build
 
       - name: CHOWN perf.data
@@ -61,7 +62,7 @@ jobs:
       - name: Generate Flamegraph
         if: steps.build.outcome == 'success'
         run: |
-          perf script -v -i perf.data > out.perf
+          linux-6.9.3/tools/perf/perf script -v -i perf.data > out.perf
           ../FlameGraph/stackcollapse-perf.pl out.perf > out.folded
           ../FlameGraph/flamegraph.pl out.folded > ${{ env.OUTPUT_FILE }}
         working-directory: build

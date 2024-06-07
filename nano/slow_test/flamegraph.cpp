@@ -34,7 +34,7 @@ TEST (flamegraph, large_direct_processing)
 		std::deque<std::shared_ptr<nano::block>> blocks;
 		std::deque<nano::keypair> keys;
 		auto previous = *std::prev (std::prev (system.initialization_blocks.end ()));
-		for (auto i = 0; i < 20000; ++i)
+		for (auto i = 0; i < 200000; ++i)
 		{
 			keys.emplace_back ();
 			auto const & key = keys.back ();
@@ -74,7 +74,7 @@ TEST (flamegraph, large_confirmation)
 		std::deque<std::shared_ptr<nano::block>> blocks;
 		std::deque<nano::keypair> keys;
 		auto previous = *std::prev (std::prev (system.initialization_blocks.end ()));
-		for (auto i = 0; i < 100; ++i)
+		for (auto i = 0; i < 1000; ++i)
 		{
 			keys.emplace_back ();
 			auto const & key = keys.back ();

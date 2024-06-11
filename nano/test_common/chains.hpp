@@ -47,11 +47,11 @@ nano::block_list_t setup_independent_blocks (nano::test::system & system, nano::
  * \param dest_rep the rep that the dest account should have
  * \param force_confirm force confirm the blocks
  */
-std::pair<std::shared_ptr<nano::block>, std::shared_ptr<nano::block>> setup_new_account (nano::test::system & system, nano::node & node, nano::uint128_t const amount, nano::keypair source, nano::keypair dest, nano::account dest_rep, bool force_confirm);
+std::pair<std::shared_ptr<nano::block>, std::shared_ptr<nano::block>> setup_new_account (nano::work_pool & work, nano::ledger & ledger, nano::uint128_t const amount, nano::keypair source, nano::keypair dest, nano::account dest_rep, bool force_confirm);
 
 /**
  * Sends `amount` raw from `source` account chain into a newly created account and sets that account as its own representative
  * @return created representative
  */
-nano::keypair setup_rep (nano::test::system & system, nano::node & node, nano::uint128_t amount, nano::keypair source = nano::dev::genesis_key);
+nano::keypair setup_rep (nano::work_pool & work, nano::ledger & ledger, nano::uint128_t amount, nano::keypair source = nano::dev::genesis_key);
 }

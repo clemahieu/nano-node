@@ -4,7 +4,8 @@
 #include <nano/test_common/ledger.hpp>
 
 nano::test::context::ledger_context::ledger_context (std::deque<std::shared_ptr<nano::block>> && blocks) :
-	store_m{ nano::make_store (logger, nano::unique_path (), nano::dev::constants) },
+	path{ nano::unique_path () },
+	store_m{ nano::make_store (logger, path, nano::dev::constants) },
 	stats_m{ logger },
 	ledger_m{ *store_m, stats_m, nano::dev::constants },
 	blocks_m{ blocks },

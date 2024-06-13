@@ -84,6 +84,11 @@ void nano::scheduler::hinted::activate (secure::read_transaction const & transac
 		const nano::block_hash current_hash = stack.top ();
 		stack.pop ();
 
+		if (node.vote_router.active (current_hash))
+		{
+			continue; // Move on to the next item in the stack
+		}
+
 		// Check if block exists
 		if (auto block = node.ledger.any.block_get (transaction, current_hash); block)
 		{

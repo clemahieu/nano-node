@@ -84,7 +84,7 @@ public:
 	 * All representatives above this weight will be kept in memory!
 	 */
 	nano::amount representative_vote_weight_minimum{ 10 * nano::Mxrb_ratio };
-	unsigned password_fanout{ 1024 };
+	unsigned password_fanout{ 4 };
 	unsigned io_threads{ env_io_threads ().value_or (std::max (4u, nano::hardware_concurrency ())) };
 	unsigned network_threads{ std::max (4u, nano::hardware_concurrency ()) };
 	unsigned work_threads{ std::max (4u, nano::hardware_concurrency ()) };

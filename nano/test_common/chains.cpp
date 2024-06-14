@@ -148,6 +148,50 @@ nano::block_list_t nano::test::setup_independent_blocks (nano::test::system & sy
 	return blocks;
 }
 
+std::pair<std::shared_ptr<nano::block>, std::shared_ptr<nano::block>> nano::test::setup_new_account (nano::work_pool & work, nano::ledger & ledger, nano::uint128_t const amount, nano::keypair source, nano::keypair dest, nano::account dest_rep, bool force_confirm)
+{
+	auto tx = ledger.store.tx_begin_write ();
+	auto latest = ledger.latest (tx, source.pub);
+	auto balance = ledger.account_balance (tx, source.pub);
+
+	auto send = nano::block_builder ()
+				.state ()
+				.account (source.pub)
+				.previous (latest)
+				.representative (source.pub)
+				.balance (balance - amount)
+				.link (dest.pub)
+				.sign (source.prv, source.pub)
+				.work (work.generate (latest).value ())
+				.build_shared ();
+
+	auto open = nano::block_builder ()
+				.state ()
+				.account (dest.pub)
+				.previous (0)
+				.representative (dest_rep)
+				.balance (amount)
+				.link (send->hash ())
+				.sign (dest.prv, dest.pub)
+				.work (work.generate (dest.pub).value ())
+				.build_shared ();
+
+	if (ledger.process (tx, *send).code != nano::process_result::progress)
+	{
+		throw std::runtime_error ("Test block didn't insert");
+	}
+	if (ledger.process (tx, *open).code != nano::process_result::progress)
+	{
+		throw std::runtime_error ("Test block didn't insert");
+	}
+	if (force_confirm)
+	{
+		ledger.store.confirmation_height.put (tx, source.pub, { send->sideband ().height, send->hash () });
+		ledger.store.confirmation_height.put (tx, dest.pub, { open->sideband ().height, open->hash () });
+	}
+	return std::make_pair (send, open);
+}
+
 nano::keypair nano::test::setup_rep (nano::test::system & system, nano::node & node, nano::uint128_t const amount, nano::keypair source)
 {
 	auto latest = node.latest (source.pub);

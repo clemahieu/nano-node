@@ -32,6 +32,8 @@ std::vector<std::pair<nano::account, nano::block_list_t>> setup_chains (nano::te
  */
 nano::block_list_t setup_independent_blocks (nano::test::system & system, nano::node & node, int count, nano::keypair source = nano::dev::genesis_key);
 
+std::pair<std::shared_ptr<nano::block>, std::shared_ptr<nano::block>> setup_new_account (nano::work_pool & work, nano::ledger & ledger, nano::uint128_t const amount, nano::keypair source, nano::keypair dest, nano::account dest_rep, bool force_confirm);
+
 /**
  * Sends `amount` raw from `source` account chain into a newly created account and sets that account as its own representative
  * @return created representative

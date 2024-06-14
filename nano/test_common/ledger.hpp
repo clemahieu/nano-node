@@ -25,6 +25,8 @@ namespace test
 			nano::store::component & store ();
 			nano::stats & stats ();
 			std::deque<std::shared_ptr<nano::block>> const & blocks () const;
+			nano::work_pool & pool ();
+			std::filesystem::path const path;
 
 		private:
 			nano::logger_mt logger;
@@ -32,6 +34,7 @@ namespace test
 			nano::stats stats_m;
 			nano::ledger ledger_m;
 			std::deque<std::shared_ptr<nano::block>> blocks_m;
+			nano::work_pool pool_m;
 		};
 
 		/** Only a genesis block */

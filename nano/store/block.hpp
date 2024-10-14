@@ -3,7 +3,7 @@
 #include <nano/lib/block_sideband.hpp>
 #include <nano/lib/numbers.hpp>
 #include <nano/store/component.hpp>
-#include <nano/store/iterator.hpp>
+#include <nano/store/typed_iterator.hpp>
 
 #include <functional>
 #include <optional>
@@ -27,7 +27,7 @@ public:
 class block
 {
 public:
-	using iterator = iterator<nano::block_hash, block_w_sideband>;
+	using iterator = typed_iterator<nano::block_hash, block_w_sideband>;
 
 public:
 	virtual void put (store::write_transaction const &, nano::block_hash const &, nano::block const &) = 0;

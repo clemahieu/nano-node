@@ -45,22 +45,24 @@ size_t nano::store::lmdb::account::count (store::transaction const & transaction
 
 auto nano::store::lmdb::account::begin (store::transaction const & transaction, nano::account const & account) const -> iterator
 {
-	return store.make_iterator<nano::account, nano::account_info> (transaction, tables::accounts, account);
+	lmdb::db_val val{ account };
+	return iterator{ store::iterator{ lmdb::iterator{ store.env.tx (transaction), accounts_handle, val } } };
 }
 
 auto nano::store::lmdb::account::begin (store::transaction const & transaction) const -> iterator
 {
-	return store.make_iterator<nano::account, nano::account_info> (transaction, tables::accounts);
+	return iterator{ store::iterator{ lmdb::iterator{ store.env.tx (transaction), accounts_handle } } };
 }
 
 auto nano::store::lmdb::account::rbegin (store::transaction const & transaction_a) const -> iterator
 {
-	return store.make_iterator<nano::account, nano::account_info> (transaction_a, tables::accounts, false);
+	release_assert (false);
+	//return store.make_iterator<nano::account, nano::account_info> (transaction_a, tables::accounts, false);
 }
 
 auto nano::store::lmdb::account::end () const -> iterator
 {
-	return iterator{ nullptr };
+	return iterator{ store::iterator{ lmdb::iterator {} } };
 }
 
 void nano::store::lmdb::account::for_each_par (std::function<void (store::read_transaction const &, iterator, iterator)> const & action_a) const

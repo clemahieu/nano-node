@@ -1,4 +1,7 @@
 #include <nano/store/account.hpp>
+#include <nano/store/typed_iterator_templates.hpp>
+
+template class nano::store::typed_iterator<nano::account, nano::account_info>;
 
 std::optional<nano::account_info> nano::store::account::get (store::transaction const & transaction, nano::account const & account)
 {

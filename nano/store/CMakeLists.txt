@@ -7,7 +7,6 @@ add_library(
   db_val.hpp
   db_val_impl.hpp
   iterator.hpp
-  iterator_impl.hpp
   final_vote.hpp
   lmdb/account.hpp
   lmdb/block.hpp
@@ -49,6 +48,8 @@ add_library(
   rocksdb/version.hpp
   tables.hpp
   transaction.hpp
+  typed_iterator.hpp
+  typed_iterator_templates.hpp
   version.hpp
   versioning.hpp
   account.cpp
@@ -57,13 +58,13 @@ add_library(
   confirmation_height.cpp
   db_val.cpp
   iterator.cpp
-  iterator_impl.cpp
   final_vote.cpp
   lmdb/account.cpp
   lmdb/block.cpp
   lmdb/confirmation_height.cpp
   lmdb/db_val.cpp
   lmdb/final_vote.cpp
+  lmdb/iterator.cpp
   lmdb/lmdb.cpp
   lmdb/lmdb_env.cpp
   lmdb/transaction.cpp
@@ -78,11 +79,13 @@ add_library(
   peer.cpp
   pending.cpp
   pruned.cpp
+  rep_weight.cpp
   rocksdb/account.cpp
   rocksdb/block.cpp
   rocksdb/confirmation_height.cpp
   rocksdb/db_val.cpp
   rocksdb/final_vote.cpp
+  rocksdb/iterator.cpp
   rocksdb/online_weight.cpp
   rocksdb/peer.cpp
   rocksdb/pending.cpp
@@ -93,6 +96,7 @@ add_library(
   rocksdb/utility.cpp
   rocksdb/version.cpp
   transaction.cpp
+  typed_iterator.cpp
   version.cpp
   versioning.cpp
   write_queue.hpp

@@ -3,7 +3,7 @@
 #include <nano/lib/numbers.hpp>
 #include <nano/store/component.hpp>
 #include <nano/store/db_val_impl.hpp>
-#include <nano/store/iterator.hpp>
+#include <nano/store/typed_iterator.hpp>
 
 #include <functional>
 
@@ -20,7 +20,7 @@ namespace nano::store
 class account
 {
 public:
-	using iterator = iterator<nano::account, nano::account_info>;
+	using iterator = typed_iterator<nano::account, nano::account_info>;
 
 public:
 	virtual void put (store::write_transaction const &, nano::account const &, nano::account_info const &) = 0;

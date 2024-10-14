@@ -66,17 +66,18 @@ void nano::store::lmdb::final_vote::clear (store::write_transaction const & tran
 
 auto nano::store::lmdb::final_vote::begin (store::transaction const & transaction, nano::qualified_root const & root) const -> iterator
 {
-	return store.make_iterator<nano::qualified_root, nano::block_hash> (transaction, tables::final_votes, root);
+	lmdb::db_val val{ root };
+	return iterator{ store::iterator{ lmdb::iterator{ store.env.tx (transaction), final_votes_handle, val } } };
 }
 
 auto nano::store::lmdb::final_vote::begin (store::transaction const & transaction) const -> iterator
 {
-	return store.make_iterator<nano::qualified_root, nano::block_hash> (transaction, tables::final_votes);
+	return iterator{ store::iterator{ lmdb::iterator{ store.env.tx (transaction), final_votes_handle } } };
 }
 
 auto nano::store::lmdb::final_vote::end () const -> iterator
 {
-	return iterator{ nullptr };
+	return iterator{ store::iterator{ lmdb::iterator {} } };
 }
 
 void nano::store::lmdb::final_vote::for_each_par (std::function<void (store::read_transaction const &, iterator, iterator)> const & action_a) const

@@ -299,8 +299,8 @@ void nano::store::rocksdb::component::upgrade_v22_to_v23 (store::write_transacti
 		auto transaction = tx_begin_read ();
 
 		// Manually create v22 compatible iterator to read accounts
-		auto it = make_iterator<nano::account, nano::account_info_v22> (transaction, tables::accounts);
-		auto const end = store::iterator<nano::account, nano::account_info_v22> (nullptr);
+		auto it = typed_iterator<nano::account, nano::account_info_v22> (store::iterator{ rocksdb::iterator{ db.get (), rocksdb::tx (transaction), table_to_column_family (tables::accounts) } });
+		auto const end = typed_iterator<nano::account, nano::account_info_v22>{ store::iterator{ rocksdb::iterator{} } };
 
 		for (; it != end; ++it)
 		{

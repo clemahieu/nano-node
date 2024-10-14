@@ -137,17 +137,18 @@ uint64_t nano::store::lmdb::block::count (store::transaction const & transaction
 
 auto nano::store::lmdb::block::begin (store::transaction const & transaction) const -> iterator
 {
-	return store.make_iterator<nano::block_hash, nano::store::block_w_sideband> (transaction, tables::blocks);
+	return iterator{ store::iterator{ lmdb::iterator{ store.env.tx (transaction), blocks_handle } } };
 }
 
 auto nano::store::lmdb::block::begin (store::transaction const & transaction, nano::block_hash const & hash) const -> iterator
 {
-	return store.make_iterator<nano::block_hash, nano::store::block_w_sideband> (transaction, tables::blocks, hash);
+	lmdb::db_val val{ hash };
+	return iterator{ store::iterator{ lmdb::iterator{ store.env.tx (transaction), blocks_handle, val } } };
 }
 
 auto nano::store::lmdb::block::end () const -> iterator
 {
-	return iterator{ nullptr };
+	return iterator{ store::iterator{ lmdb::iterator {} } };
 }
 
 void nano::store::lmdb::block::for_each_par (std::function<void (store::read_transaction const &, iterator, iterator)> const & action_a) const
